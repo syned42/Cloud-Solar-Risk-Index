@@ -1,7 +1,6 @@
 ===============================================
 1. Sensorvalidierung
 ===============================================
-
 Diagramm:
 ------------------------------------------------
             [Sensordaten-Eingang]
@@ -24,14 +23,13 @@ Diagramm:
 ------------------------------------------------
 
 Erklärung & Hintergrund:
-- **Zweck:** Sicherstellung, dass nur plausible Sensordaten in die weiteren Berechnungen eingehen. Bei unplausiblen Werten wird automatisch ein vordefinierter Fallback-Wert (z. B. 50% für den Bewölkungsgrad) verwendet.
-- **Erweiterung:** Zusätzlich zum Fallback erfolgt eine Protokollierung (Logging), um nachträglich nachvollziehen zu können, wann und warum ein Standardwert eingesetzt wurde.
-- **Hintergrundwissen:** In Smart‑Home-Systemen und PV-Anwendungen ist es üblich, unplausible Sensordaten abzufangen, um die Stabilität der Gesamtberechnung zu sichern.
+- **Zweck:** Sicherstellung, dass nur plausible Sensordaten für die Berechnungen genutzt werden. Unplausible Werte führen zur Verwendung von Standard- bzw. Fallback-Werten.
+- **Erweiterung:** Zusätzlich erfolgt ein Logging zur Nachvollziehbarkeit von Fallback-Einsätzen.
+- **Hintergrund:** In PV-Systemen und Smart‑Home-Anwendungen ist es üblich, fehlerhafte Sensordaten auszuschließen.
 
 ===============================================
 2. Vektorbasiertes Standortmodell
 ===============================================
-
 Diagramm:
 ------------------------------------------------
                  [Wetterstations-Daten]
@@ -51,19 +49,16 @@ Diagramm:
                        │
            [Ermittlung des Einflussfaktors]
 ------------------------------------------------
-
 Erklärung & Hintergrund:
-- **Zweck:** Bestimmen, welche Wetterstationen – abhängig von ihrem relativen Standort und der momentanen Windrichtung – maßgeblichen Einfluss auf die WP-Steuerung haben.
-- **Vorgehen:** 
-  - Die geografischen Koordinaten werden zu Vektoren umgerechnet (z. B. unter Annahme von etwa 111 km pro Grad).
-  - Parallel werden Winddaten in einen Vektor umgerechnet.
-  - Mithilfe des Dot-Produkts wird der Einflussfaktor ermittelt: Werte nahe 1 bedeuten eine optimale Ausrichtung, niedrigere Werte reduzieren den Einfluss.
-- **Hintergrundwissen:** Ansätze aus der PV-Ertragsprognose und Cloud-Tracking-Methoden belegen, dass nur dynamisch bestimmte Daten den tatsächlichen Einfluss widerspiegeln.
+- **Zweck:** Dynamische Gewichtung der Standorte, indem deren Position relativ zum Einspeisepunkt und die aktuelle Windrichtung berücksichtigt werden.
+- **Vorgehen:**  
+  - Umrechnung der geografischen Koordinaten in Vektoren  
+  - Berechnung des Dot-Produkts mit dem Windvektor, um den Einflussfaktor zu ermitteln.
+- **Hintergrund:** Methoden aus der PV-Ertragsprognose, die dynamisch den tatsächlichen Einfluss widerspiegeln.
 
 ===============================================
 3. Saisonaler Faktor
 ===============================================
-
 Diagramm:
 ------------------------------------------------
                [Tag im Jahr]
@@ -77,16 +72,14 @@ Diagramm:
                       ▼
            [Ermittlung des Saisonfaktors]
 ------------------------------------------------
-
 Erklärung & Hintergrund:
-- **Zweck:** Anpassung der WP-Berechnung an jahreszeitliche Schwankungen (z. B. intensivere Sonneneinstrahlung im Sommer, geringere im Winter).
-- **Vorgehen:** Der jeweilige Tag im Jahr wird in einen Winkel umgerechnet, der dann über eine Sinusfunktion in einen Faktor übergeht.
-- **Hintergrundwissen:** Dieser Ansatz wird in vielen Photovoltaik-Leistungsmodellen verwendet, um den natürlichen Verlauf der Sonnenintensität abzubilden.
+- **Zweck:** Anpassung des WP-Werts an jahreszeitliche Unterschiede.
+- **Vorgehen:** Der aktuelle Tag wird in einen Winkel umgerechnet, der über eine Sinusfunktion in einen Faktor transformiert wird.
+- **Hintergrund:** Häufig in PV-Leistungsmodellen eingesetzt, um den natürlichen Ablauf der Sonneneinstrahlung zu berücksichtigen.
 
 ===============================================
 4. Entscheidungslogik
 ===============================================
-
 Diagramm:
 ------------------------------------------------
          [Gewichtete WP-Werte pro Station]
@@ -109,24 +102,30 @@ Diagramm:
                       │
          ┌────────────┴─────────────┐
          │                          │
-   Nein: Keine Änderung      Ja: Wert reduzieren & als unsicher markieren
+     Nein: Keine Änderung    Ja: WP-Wert erhöhen & als unsicher markieren
+         │                          │
+         └───────────────┬──────────┘
+                         │
+                         ▼
+              [Angepasster WP-Wert]
+                         │
+                         ▼
+         [Vergleich mit Schwellenwerten]
+                         │
+                         ▼
+       [Endgültige Entscheidung: "JA", "MODERAT", "NEIN"]
 ------------------------------------------------
-
 Erklärung & Hintergrund:
-- **Zweck:** Es wird eine abschließende Entscheidung getroffen, ob die Wärmepumpe (WP) aktiviert wird.
-- **Vorgehen:**
-  - Zunächst werden die gewichteten WP-Werte aller Stationen aggregiert.
-  - Der Gesamtwert wird mit definierten Schwellen verglichen:
-    - Unter 40 % gilt als günstig („JA“).
-    - Zwischen 40 % und 70 % als moderat.
-    - Über 70 % als ungünstig („NEIN“).
-  - Zusätzlich erfolgt eine Prüfung, ob die Winddaten stark auseinander liegen, was zu einer Unsicherheitskennzeichnung und einer Reduzierung des Wertes führen kann.
-- **Hintergrundwissen:** Diese Logik stützt sich auf praktische Erfahrungen in der PV-basierten WP-Steuerung und relevante Branchenstandards.
+- **Zweck:** Ableitung einer operativen Entscheidung basierend auf dem WP-Wert.
+- **Vorgehen:**  
+  - Aggregation der standortbezogenen WP-Werte  
+  - Vergleich mit definierten Schwellen (unter 40 % → "JA", 40–70 % → "MODERAT", ≥ 70 % → "NEIN")
+  - **Neu:** Bei unsicheren Winddaten (Differenz ≥ 30°) wird der WP-Wert um 5 Punkte **erhöht**, was als Warnsignal („unsicher“) eingebaut ist.
+- **Hintergrund:** Dieser Schritt stellt sicher, dass bei inkonsistenten Daten keine voreilige Aktivierung der WP erfolgt.
 
 ===============================================
 5. Feedbackschleife zur Parameteroptimierung
 ===============================================
-
 Diagramm:
 ------------------------------------------------
      [Ergebnis: WP-Entscheidung]
@@ -142,19 +141,16 @@ Diagramm:
                       │
                       └─────► [Neue WP-Berechnung]
 ------------------------------------------------
-
 Erklärung & Hintergrund:
-- **Zweck:** Dieser Prozess dient der kontinuierlichen Optimierung der Parameter, basierend auf den bisherigen Ergebnissen.
-- **Vorgehen:**
-  - Nach der WP-Entscheidung werden die Ergebnisse geloggt und archiviert.
-  - Eine Analysephase prüft, ob die getroffenen Entscheidungen mit den Erwartungen übereinstimmen.
-  - Daraus werden Parameter und Gewichtungen angepasst, die dann in einer neuen Berechnung berücksichtigt werden.
-- **Hintergrundwissen:** Iterative Anpassungen und Feedback-Loops sind in technischen Systemen üblich, um langfristig eine höhere Genauigkeit und Stabilität zu erreichen.
+- **Zweck:** Langfristige Optimierung des Systems anhand historischer Daten.
+- **Vorgehen:**  
+  - Archivierung der Ergebnisse  
+  - Analyse und iterative Anpassung der Parameter
+- **Hintergrund:** Standardverfahren in technischen Systemen zur Erhöhung der Genauigkeit.
 
 ===============================================
 6. Ausfallsicherung und Notfallmodus
 ===============================================
-
 Diagramm:
 ------------------------------------------------
           [Sensordaten-Eingang]
@@ -172,18 +168,16 @@ Diagramm:
                                            ▼
                               [Setze Standardwerte & Alarmiere]
 ------------------------------------------------
-
 Erklärung & Hintergrund:
-- **Zweck:** Sicherstellung des Betriebs auch bei Ausfällen kritischer Sensoren.
-- **Vorgehen:**
-  - Zunächst wird geprüft, ob überhaupt Daten vorliegen.
-  - Fehlen die Daten, wird ein Notfallmodus aktiviert, in dem vordefinierte Standardwerte eingesetzt und ein Alarm (z. B. via Logging oder Benachrichtigung) ausgelöst wird.
-- **Hintergrundwissen:** Die Ausfallsicherung ist ein wichtiger Bestandteil robuster Steuerungssysteme, um bei kritischen Hardware- oder Kommunikationsfehlern einen sicheren Betrieb gewährleisten zu können.
+- **Zweck:** Sicherstellung des Betriebs bei Ausfällen kritischer Sensoren.
+- **Vorgehen:**  
+  - Prüfung der Datenverfügbarkeit  
+  - Aktivierung von Notfallmechanismen bei Datenmangel
+- **Hintergrund:** Essentiell für die Robustheit von Steuerungssystemen.
 
 ===============================================
 7. Gesamtablauf / Zusammenfassung
 ===============================================
-
 Diagramm:
 ------------------------------------------------
           [Sensordaten validieren]
@@ -201,15 +195,12 @@ Diagramm:
          [Entscheidung via Schwellenwertvergleich]
                       │
                       ▼
-          [Ergebnis: WP aktiv / moderat / nein]
+     [Ergebnis: WP Entscheidung: "JA" / "MODERAT" / "NEIN"]
 ------------------------------------------------
-
 Erklärung & Hintergrund:
-- **Zweck:** Kompakte Zusammenfassung aller Teilschritte im Entscheidungsprozess.
-- **Vorgehen:**  
-  - Beginnend mit der Validierung der Sensordaten werden alle wesentlichen Verarbeitungsschritte nacheinander durchgeführt.
-  - Anschließend erfolgt die Aggregation und letztlich die Entscheidungsfindung, die im Endergebnis als "JA", "MODERAT" oder "NEIN" ausgegeben wird.
-- **Hintergrundwissen:** Diese Gesamtübersicht dient als Reminder an den gesamten Workflow und erleichtert das Verständnis und Debugging des Systems.
+- **Zweck:** Kompakte Darstellung des Gesamtprozesses.
+- **Vorgehen:** Alle Teilschritte werden sequentiell durchgeführt und führen zur finalen WP-Entscheidung.
+- **Hintergrund:** Erleichtert das Verständnis und Debugging des gesamten Systems.
 
 ===============================================
 Ende der diagramm.plain
