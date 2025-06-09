@@ -1,4 +1,6 @@
 # Solarwahrscheinlichkeit
+# mit Hilfe der DWD Integration HACS 
+(https://github.com/FL550/dwd_weather)
 
 # WP Solarbewertung – Dynamische Steuerung der Wärmepumpe basierend auf Wetter- und PV-Daten
 
