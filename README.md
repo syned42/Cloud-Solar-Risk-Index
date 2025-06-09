@@ -88,7 +88,7 @@ Auf Basis des final berechneten WP-Werts wird die WP-Steuerung ausgelöst:
 - **MODERAT – Bedingt empfehlenswert:** Mittlere Werte (z. B. zwischen 40 % und 70 %) deuten auf teilweise günstige Bedingungen hin.
 - **NEIN – Solarbedingungen ungünstig:** Hohe Werte (> 70 %) signalisieren, dass die Solarbedingungen nicht ausreichend sind.
   
-Zusätzlich wird eine **Unsicherheitsprüfung** der Winddaten durchgeführt. Weichen die Windrichtungen der verschiedenen Stationen um mehr als eine definierte Toleranz ab (z. B. 30°), wird der finale WP-Wert um einen fixen Betrag reduziert und als unsicher markiert.
+Zusätzlich wird eine **Unsicherheitsprüfung** der Winddaten durchgeführt. Weichen die Windrichtungen der verschiedenen Stationen um mehr als eine definierte Toleranz ab (z. B. 30°), wird der finale WP-Wert um einen fixen Betrag +5% erhöht und als unsicher markiert.
 
 ## Praxisnähe und Realitätsbezug
 Die vorliegende Berechnung basiert auf **realen Wetter- und Einspeisedaten** und ist darauf ausgelegt, sich dynamisch an kurzfristige Wetteränderungen anzupassen.  
@@ -251,7 +251,7 @@ Nach der Berechnung der WP Solarwahrscheinlichkeit erfolgt die Entscheidungsfind
   - **Wert zwischen 40 % und 70 %:** Bedingt empfehlenswerte Bedingungen – WP wird moderat aktiv („MODERAT –“).
   - **Wert > 70 %:** Ungeeignete Bedingungen – WP bleibt inaktiv („NEIN –“).
 - **Unsicherheitskennzeichnung:**  
-  Zusätzlich wird eine Prüfung der Konsistenz der Winddaten durchgeführt; wenn die Windrichtungen der Standorte zu sehr auseinander liegen (z. B. Differenz > 30°), wird der WP-Wert leicht herabgesetzt und als „unsicher“ markiert. Dies warnt vor instabilen oder uneinheitlichen Wetterbedingungen.
+  Zusätzlich wird eine Prüfung der Konsistenz der Winddaten durchgeführt; wenn die Windrichtungen der Standorte zu sehr auseinander liegen (z. B. Differenz > 30°), wird der WP-Wert leicht heraufgesetzt (+5) und als „unsicher“ markiert. Dies warnt vor instabilen oder uneinheitlichen Wetterbedingungen.
 
 ---
 
