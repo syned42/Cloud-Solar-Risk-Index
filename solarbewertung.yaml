@@ -89,8 +89,12 @@
 #      - Basierend auf dem finalen WP-Wert wird eine operative Entscheidung abgeleitet:
 #          "JA –" bei sehr günstigen Bedingungen, "MODERAT –" bei bedingt sinnvollen Bedingungen,
 #          "NEIN –" bei ungünstigen Einstellungen.
-#      - Bei unsicheren Winddaten (wenn die stationsübergreifenden Windrichtungen zu stark 
-#         differieren, >30°) wird der finale Wert um 5 Punkte reduziert und als "unsicher" markiert.
+#      - Bei unsicheren Winddaten – also wenn die stationsübergreifende Differenz der
+#        numerischen Windrichtungen 30° oder mehr beträgt – wird der finale WP-Wert **um 5 Punkte
+#        erhöht**. Da in diesem System höhere WP-Werte als ungünstiger interpretiert werden, sind
+#        unsichere (inkonsistente) Daten somit als ungünstig zu werten. Der Ausdruck "unsicher"
+#        wird in der Entscheidungsbeschreibung zusätzlich vermerkt.
+#
 #
 #   6. WP ENTSCHEIDUNGSBEGRÜNDUNG & WP PARAMETER HINWEIS:
 #      - Hier werden zusätzliche Informationen ausgegeben, die den Einfluss der einzelnen Parameter 
@@ -129,12 +133,11 @@
 #
 ###############################################################################
 
-###############################################################################
+
 #
 # --- Teil 1: WINDRICHTUNG & SAISONFAKTOR ---
 #
-# Validierung: Alle Werte werden im Idealfall im korrekten Bereich abgefragt.
-#
+
 # 1. WINDRICHTUNG IN TEXT – Giessen
 - name: "Giessen Windrichtung Text"
   state: >
@@ -381,6 +384,7 @@
 #
 # --- Teil 3: FINALE WP & WP ENTSCHEIDUNG ---
 #
+
 # 8. FINALE WP SOLARWAHRSCHEINLICHKEIT – Gewichteter Durchschnitt aller 3 Standorte
 #     unter Verwendung exakter geografischer Lage und aktueller Windrichtung
 - name: "WP Solarwahrscheinlichkeit"
@@ -448,7 +452,8 @@
     {{ (wp_weighted * season) | round(0) }}
 
 # 9. WP ENTSCHEIDUNG – Entscheidungstext basierend auf dem finalen WP-Wert und
-#    Konsistenz der Winddaten (bei Differenzen > 30° wird der Wert um 5 Punkte abgezogen)
+#    Konsistenz der Winddaten (bei Differenzen > 30° wird der WP-Wert um 5 Punkte **erhöht**,
+#    um unsichere Daten als ungünstig zu werten)
 - name: "WP Entscheidung"
   state: >
     {% if not is_state('sun.sun', 'above_horizon') %}
@@ -472,7 +477,8 @@
               {%- set ambiguous = true -%}
          {%- endif -%}
       {%- endif -%}
-      {%- set adjusted = final_prob - (5 if ambiguous else 0) -%}
+      {# Bei unsicheren Daten (ambiguous == true) wird der finale WP-Wert um 5 Punkte hinzugefügt #}
+      {%- set adjusted = final_prob + (5 if ambiguous else 0) -%}
       {%- if adjusted < 40 -%}
         {%- if ambiguous -%}
           "JA – (unsicher) Solarbedingungen günstig"
@@ -539,8 +545,9 @@
     {% endif %}
 
 #
-# --- Teil 4: WP PARAMETER HINWEIS & WINDRICHTUNG OBERKLEEN ---
+# --- Teil 12: WP PARAMETER HINWEIS & WINDRICHTUNG OBERKLEEN ---
 #
+
 # 12. WP PARAMETER HINWEIS – inkl. Bonus Ø und Dominanzreihenfolge
 - name: "WP Parameter Hinweis"
   state: >
