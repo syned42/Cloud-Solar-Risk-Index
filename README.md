@@ -1,12 +1,31 @@
-# Solarwahrscheinlichkeit
+# Cloud Solar Risk index (CSRI)
+# Verdunklungsrisiko-Bewertung für PV-Anlagen
 # mit Hilfe der DWD Integration HACS 
 (https://github.com/FL550/dwd_weather)
 
-# WP Solarbewertung – Dynamische Steuerung der Wärmepumpe basierend auf Wetter- und PV-Daten
+# 
 
 ## Einleitung
 In der heutigen Zeit gewinnt der Ausbau erneuerbarer Energien stetig an Bedeutung. Insbesondere Photovoltaikanlagen (PV) und Wärmepumpen (WP) spielen eine zentrale Rolle in der energieeffizienten Hausautomation.  
-Dieses Projekt verfolgt das Ziel, die Wärmepumpe intelligent zu steuern – und zwar **nicht allein basierend auf aktuellen Einspeisungswerten**, sondern durch die Kombination mehrerer meteorologischer Parameter, die eine **"Solarwahrscheinlichkeit"** berechnen. Anhand dieser Kennzahl wird dann entschieden, ob die WP aktiviert werden soll, um ausschließlich bei günstigen Solarbedingungen den Haushalt zu unterstützen.  
+Dieses Projekt verfolgt das Ziel, Verbraucher intelligent zu steuern – und zwar **nicht allein basierend auf aktuellen Einspeisungswerten**, sondern durch die Kombination mehrerer meteorologischer Parameter, die eine **"Verdunklungsgefahr"** berechnen. 
+
+# Cloud Solar Risk Index (CSRI)
+
+![CSRI Badge](https://img.shields.io/badge/CSRI-0--100%25-blue)
+
+**Deutsch:** Wolken-Solar-Risikoindex  
+**Kurz:** CSRI  
+
+> Ein dimensionsloser Wert (0 – 100 %), der **die Wahrscheinlichkeit** angibt,  
+> mit der die aktuelle solare Einstrahlung (UV-Index + Globalstrahlung in W/m²)  
+> durch herannahende Wolken kurzfristig gemindert wird.
+
+## 📊 Warum CSRI ?
+
+Statt nur den momentanen Strahlungswert zu betrachten, bewertet der CSRI die **Dynamik** von UV-Index, Globalstrahlung und Wolkenzug – trianguliert  
+aus mehreren DWD-Stationen im 20–30 km-Radius. So entsteht ein Prozentwert, der sowohl PV-Betreibern als auch Sonnenanbetern hilft, drohende Abschattungen vorauszusehen.
+
+Anhand dieser Kennzahl wird dann entschieden, ob die energiehungrige Verbraucher aktiviert werden sollen, um ausschließlich bei günstigen Solarbedingungen den Haushalt zu unterstützen.  
 
 ## Herausforderung
 Die zentrale Herausforderung besteht darin, ein System zu entwickeln, das:
@@ -16,15 +35,17 @@ Die zentrale Herausforderung besteht darin, ein System zu entwickeln, das:
 - **Unplausible oder fehlende Sensordaten** (zum Beispiel ein statischer UV-Index, der nur einmal täglich aktualisiert wird oder fehlende Werte bei Waldems) erkennt und entsprechend behandelt.
 - **Dynamisch** und **robust** genug ist, um im täglichen Betrieb verlässliche Entscheidungen zu ermöglichen, ohne dass kurzfristige Störungen oder Messfehler zu unsachgemäßen WP-Aktivierungen führen.
 
-Aus all diesen Gründen stellt die Entwicklung einer fundierten Berechnungslogik für die WP-Solarwahrscheinlichkeit eine anspruchsvolle, aber praxisrelevante Aufgabe dar.
+Aus all diesen Gründen stellt die Entwicklung einer fundierten Berechnungslogik für die Risikoermittlung eine anspruchsvolle, aber praxisrelevante Aufgabe dar.
 
 ## Projektziel
-Das Hauptziel des Projekts ist es, eine **automatische und zuverlässige Berechnung** der WP-Solarwahrscheinlichkeit zu erlangen, welche als Entscheidungsgrundlage für die WP-Aktivierung dient. Konkret soll das System:
+Das Hauptziel des Projekts ist es, eine **automatische und zuverlässige Berechnung** des Cloud-Solar-Risk Index zu erlangen, welche als Entscheidungsgrundlage für die Automation / Aktivierung dient. Konkret soll das System:
 
 - **Nur Wettereinflüsse berücksichtigen**, die tatsächlich relevant sind, indem eine dynamische Standortgewichtung zum Einsatz kommt.
 - Einen **Saisonfaktor** implementieren, der den jahreszeitlichen Verlauf der Sonneneinstrahlung realistisch abbildet.
 - **Fehlerhafte oder unvollständige Sensordaten** erkennen und mittels Standardwerten oder neutralen Einflüssen ausgleichen, sodass die Endberechnung nicht verzerrt wird.
 - Eine Entscheidung (zum Beispiel "JA", "MODERAT" oder "NEIN") ausgeben, die signifikante Unterschiede in den Wetterbedingungen klar identifiziert und als Automationsbasis in Home Assistant dient.
+
+Der CSRI kann somit in jeder Automation als Bedingung implementiert werden. Die Skala 0% - 100% ermöglicht, individuelle Einstufungen zu verwenden. 
 
 ## Hintergrundinformationen und Systemarchitektur
 
@@ -82,9 +103,9 @@ Alle ermittelten Werte der Standorte (Giessen, Bad Nauheim und Waldems) werden z
 - **Gewichtung durch Vektor-Dot-Produkte:** Die einzelnen Standortwerte werden proportional zum Einflussfaktor (basierend auf der aktuellen Windrichtung) gemittelt.
 - **Saisonaler Faktor:** Zum Endergebnis wird abschließend noch ein saisonaler Faktor multipliziert, um jahreszeitliche Unterschiede zu berücksichtigen.
 
-### 3. Entscheidungskriterium für die Wärmepumpe
-Auf Basis des final berechneten WP-Werts wird die WP-Steuerung ausgelöst:
-- **JA – Solarbedingungen günstig:** Liegt der Wert unter einem definierten Schwellenwert (z. B. < 40 %), wird die WP aktiviert.
+### 3. Entscheidungskriterium für die Einschätzung 
+Auf Basis des final berechneten CSRI wird die Empfehlung als Text eingeordnet:
+- **JA – Solarbedingungen günstig:** Liegt der Wert unter einem definierten Schwellenwert (z. B. < 40 %), ist ein guter Solarertrag wahrscheinlich.
 - **MODERAT – Bedingt empfehlenswert:** Mittlere Werte (z. B. zwischen 40 % und 70 %) deuten auf teilweise günstige Bedingungen hin.
 - **NEIN – Solarbedingungen ungünstig:** Hohe Werte (> 70 %) signalisieren, dass die Solarbedingungen nicht ausreichend sind.
   
@@ -97,7 +118,7 @@ Die vorliegende Berechnung basiert auf **realen Wetter- und Einspeisedaten** und
 - **Saisonaler Faktor:** Mit der Sinusfunktion wird ein realistischer zeitlicher Verlauf geschaffen, der zwischen Sommer und Winter differenziert.
 - **Robuste Validierung:** Ungültige oder fehlende Daten werden erkannt und durch Standardwerte oder neutrale Einflüsse kompensiert. Dadurch wird vermieden, dass Ausreißer oder Messfehler das Gesamtergebnis massiv verfälschen.
   
-Diese Methode liefert **praxisnahe und zuverlässige Werte**, die als solide Grundlage für die WP-Steuerung dienen. Der Berechnungsansatz wurde so konzipiert, dass er in unterschiedlichen Witterungslagen robust reagiert und bei kritischen Winkeln (z. B. starke Windabweichungen) entsprechende Anpassungen vornimmt.
+Diese Methode liefert **praxisnahe und zuverlässige Werte**, die als solide Grundlage für die Bewertung dienen. Der Berechnungsansatz wurde so konzipiert, dass er in unterschiedlichen Witterungslagen robust reagiert und bei kritischen Winkeln (z. B. starke Windabweichungen) entsprechende Anpassungen vornimmt.
 
 ## Installation & Nutzung
 1. **Setup in Home Assistant:**  
@@ -105,7 +126,7 @@ Diese Methode liefert **praxisnahe und zuverlässige Werte**, die als solide Gru
 2. **Anpassung der Sensoren:**  
    Stelle sicher, dass alle verwendeten Sensoren (für Bewölkung, Wind, UV, Sicht etc.) korrekt in HA eingebunden und benannt sind.
 3. **Erstellung von Automationen:**  
-   Verwende den berechneten WP-Wert und die entsprechende Entscheidung als Trigger für Automationen, etwa um die WP zu aktivieren oder zu deaktivieren.
+   Verwende den berechneten CSRI und die entsprechende Entscheidung als Trigger für Automationen, etwa um die Verbraucher zu aktivieren oder zu deaktivieren.
 4. **Monitoring & Debugging:**  
    Überprüfe regelmäßig die Zustände der Sensoren und der berechneten Werte über die Home Assistant Developer Tools, um sicherzustellen, dass die Daten valide und die Berechnungen korrekt sind.
 
@@ -129,7 +150,7 @@ Diese ausführliche Dokumentation vermittelt einen tiefen Einblick in den Berech
 
 ## Einleitung
 In Zeiten steigender Energiekosten und wachsender Anforderungen an die Energieeffizienz gewinnt die intelligente Steuerung von Haushaltsgeräten immer mehr an Bedeutung.  
-Dieses Projekt hat sich der Optimierung der Wärmepumpensteuerung verschrieben, indem es eine Kennzahl, die „WP Solarwahrscheinlichkeit“, berechnet. Diese Kennzahl dient als Entscheidungsgrundlage dafür, wann die Wärmepumpe (WP) betrieben werden sollte – und zwar basierend auf den gegenwärtigen und prognostizierten Wetterbedingungen, die den PV-Ertrag maßgeblich beeinflussen.
+Dieses Projekt hat sich der Optimierung der elektrischen Verbraucher verschrieben, indem es eine Kennzahl, den „Cloud-Solar-Risk Index", berechnet. Diese Kennzahl dient als Entscheidungsgrundlage dafür, wann die Verbraucher eingeschaltet werden können – und zwar basierend auf den gegenwärtigen und prognostizierten Wetterbedingungen, die den PV-Ertrag maßgeblich beeinflussen.
 
 Die Kombination von **wetterbasierten Parametern** und **geografisch gewichteter Datenfusion** soll sicherstellen, dass die Wärmepumpe speziell dann aktiv ist, wenn ausreichend Solarenergie zur Verfügung steht. So wird der Netzstrombezug minimiert und die Effizienz des gesamten Systems maximiert.
 
@@ -158,7 +179,7 @@ Dieses Projekt adressiert alle genannten Herausforderungen durch einen mehrstufi
 ---
 
 ## Zielsetzung
-Das primäre Ziel des Projekts ist es, eine **zuverlässige und automatisierte Berechnung** der WP Solarwahrscheinlichkeit zu implementieren, die folgendes ermöglicht:
+Das primäre Ziel des Projekts ist es, eine **zuverlässige und automatisierte Berechnung** des Cloud-Solar-Risk Index zu implementieren, die folgendes ermöglicht:
 
 - **Dynamische Datennutzung:**  
   Es werden mehrere, direkt verfügbare Wetterparameter in Echtzeit verarbeitet, sodass stets aktuelle Bedingungen in die Entscheidungsfindung einfließen.
@@ -244,7 +265,7 @@ Ein saisonal angepasster Korrekturfaktor, der über eine Sinusfunktion berechnet
   Der Tag im Jahr (als Tag der Jahres) wird in einen Winkel umgerechnet, der in die Sinusfunktion eingeht, sodass ein Wert zwischen 0 und 1 entsteht. Dieser Faktor passt den WP-Wert an, sodass im Winter (bei geringerer Sonneneinstrahlung) die WP seltener aktiviert wird als im Sommer.
 
 ### 5. Entscheidungslogik der Wärmepumpe
-Nach der Berechnung der WP Solarwahrscheinlichkeit erfolgt die Entscheidungsfindung:
+Nach der Berechnung des CSRI erfolgt die Entscheidungsfindung:
 - **Schwellwerte:**  
   Der finale WP-Wert wird mit vordefinierten Schwellen verglichen:
   - **Wert < 40 %:** Sehr günstige Bedingungen – WP wird aktiviert („JA –“).
@@ -273,7 +294,7 @@ Nach der Berechnung der WP Solarwahrscheinlichkeit erfolgt die Entscheidungsfind
 
 ### Praxisnähe
 - **Automatisierung:**  
-  Die berechnete WP Solarwahrscheinlichkeit dient als Grundlage, um Automatisierungen in Home Assistant zu triggern. Dies führt zu einer reaktionsschnellen und energieeffizienten Steuerung der WP.
+  Der berechnete CSRI dient als Grundlage, um Automatisierungen in Home Assistant zu triggern. Dies führt zu einer reaktionsschnellen und energieeffizienten Steuerung der Verbraucher.
 - **Robustheit:**  
   Der mehrstufige Validierungsprozess und die dynamische Gewichtung minimieren die Gefahr von Fehlentscheidungen durch einmalige Ausreißer oder unplausible Sensordaten.
 - **Energieeffizienz:**  
@@ -292,7 +313,8 @@ Nach der Berechnung der WP Solarwahrscheinlichkeit erfolgt die Entscheidungsfind
    - Binde die YAML-Datei in Dein HA-Setup ein (über `configuration.yaml` oder entsprechende Splits).
 
 3. **Automatisierungen:**  
-   - Erstelle Automationen, die auf Basis des berechneten WP-Werts (und der daraus resultierenden Entscheidung) die WP schalten.
+   - Erstelle Automationen, die auf Basis des berechneten CSRI (und der daraus resultierenden Entscheidung) die Verbraucher zu schalten.
+   - Kombiniere hierzu vorhandene Einspeisedaten deiner PV-Anlage oder Zeitfenster. Der CSRI erkennt nicht die momentane Leistung deiner PV.
    - Nutze zusätzlich die detailreiche Entscheidungsbegründung als Information zur Fehlerdiagnose und Optimierung.
 
 4. **Monitoring:**  
@@ -322,7 +344,7 @@ Dieses Projekt steht unter der **MIT-Lizenz**. Jeder darf den Code nutzen, anpas
 ---
 
 ## Zusammenfassung
-Dieses Projekt präsentiert einen **robusten, dynamischen** und **praxisnahen Ansatz** zur Steuerung einer Wärmepumpe, basierend auf einer fundierten WP-Solarwahrscheinlichkeit. Durch den Einsatz mehrerer Wetterstationen, einer intelligenten vektorbasierten Gewichtung und der Berücksichtigung von saisonalen Einflüssen wird ein zuverlässiges System geschaffen, das den WP-Betrieb optimiert und dabei hilft, erneuerbare Energien effizienter zu nutzen.
+Dieses Projekt präsentiert einen **robusten, dynamischen** und **praxisnahen Ansatz** zur Steuerung elektrischer Verbraucher (z.B. Wärmepumpe / Waschmaschine usw.), basierend auf einer fundierten Berechnung der möglichen Einschränkung der Sonneneinstrehlund durch Wolkenbewegungen. Durch den Einsatz mehrerer Wetterstationen, einer intelligenten vektorbasierten Gewichtung und der Berücksichtigung von saisonalen Einflüssen wird ein zuverlässiges System geschaffen, das die Automation von elektrischen Verbrauchern optimiert und dabei hilft, erneuerbare Energien effizienter zu nutzen.
 
 ---
 
