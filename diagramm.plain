@@ -73,7 +73,7 @@ Diagramm:
            [Ermittlung des Saisonfaktors]
 ------------------------------------------------
 Erklärung & Hintergrund:
-- **Zweck:** Anpassung des WP-Werts an jahreszeitliche Unterschiede.
+- **Zweck:** Anpassung des CSRI an jahreszeitliche Unterschiede.
 - **Vorgehen:** Der aktuelle Tag wird in einen Winkel umgerechnet, der über eine Sinusfunktion in einen Faktor transformiert wird.
 - **Hintergrund:** Häufig in PV-Leistungsmodellen eingesetzt, um den natürlichen Ablauf der Sonneneinstrahlung zu berücksichtigen.
 
@@ -82,7 +82,7 @@ Erklärung & Hintergrund:
 ===============================================
 Diagramm:
 ------------------------------------------------
-         [Gewichtete WP-Werte pro Station]
+         [Gewichtete CSRI pro Station]
                       │
                       ▼
          [Aggregation zu einem Gesamtwert]
@@ -102,12 +102,12 @@ Diagramm:
                       │
          ┌────────────┴─────────────┐
          │                          │
-     Nein: Keine Änderung    Ja: WP-Wert erhöhen & als unsicher markieren
+     Nein: Keine Änderung    Ja: CSRI erhöhen & als unsicher markieren
          │                          │
          └───────────────┬──────────┘
                          │
                          ▼
-              [Angepasster WP-Wert]
+              [Angepasster CSRI]
                          │
                          ▼
          [Vergleich mit Schwellenwerten]
@@ -116,9 +116,9 @@ Diagramm:
        [Endgültige Entscheidung: "JA", "MODERAT", "NEIN"]
 ------------------------------------------------
 Erklärung & Hintergrund:
-- **Zweck:** Ableitung einer operativen Entscheidung basierend auf dem WP-Wert.
+- **Zweck:** Ableitung einer operativen Entscheidung basierend auf dem CSRI.
 - **Vorgehen:**  
-  - Aggregation der standortbezogenen WP-Werte  
+  - Aggregation der standortbezogenen CSRI  
   - Vergleich mit definierten Schwellen (unter 40 % → "JA", 40–70 % → "MODERAT", ≥ 70 % → "NEIN")
   - **Neu:** Bei unsicheren Winddaten (Differenz ≥ 30°) wird der WP-Wert um 5 Punkte **erhöht**, was als Warnsignal („unsicher“) eingebaut ist.
 - **Hintergrund:** Dieser Schritt stellt sicher, dass bei inkonsistenten Daten keine voreilige Aktivierung der WP erfolgt.
@@ -128,7 +128,7 @@ Erklärung & Hintergrund:
 ===============================================
 Diagramm:
 ------------------------------------------------
-     [Ergebnis: WP-Entscheidung]
+     [Ergebnis: Entscheidung]
                       │
                       ▼
          [Logging und Datenarchivierung]
@@ -139,7 +139,7 @@ Diagramm:
                       ▼
     [Anpassung der Parameter & Gewichtungen]
                       │
-                      └─────► [Neue WP-Berechnung]
+                      └─────► [Neue CSRI-Berechnung]
 ------------------------------------------------
 Erklärung & Hintergrund:
 - **Zweck:** Langfristige Optimierung des Systems anhand historischer Daten.
@@ -189,17 +189,17 @@ Diagramm:
           [Saisonalen Faktor ermitteln]
                       │
                       ▼
-        [WP-Werte der Stationen aggregieren]
+        [CSRI der Stationen aggregieren]
                       │
                       ▼
          [Entscheidung via Schwellenwertvergleich]
                       │
                       ▼
-     [Ergebnis: WP Entscheidung: "JA" / "MODERAT" / "NEIN"]
+     [Ergebnis: Entscheidung: "JA" / "MODERAT" / "NEIN"]
 ------------------------------------------------
 Erklärung & Hintergrund:
 - **Zweck:** Kompakte Darstellung des Gesamtprozesses.
-- **Vorgehen:** Alle Teilschritte werden sequentiell durchgeführt und führen zur finalen WP-Entscheidung.
+- **Vorgehen:** Alle Teilschritte werden sequentiell durchgeführt und führen zur finalen Bewertung des CSRI.
 - **Hintergrund:** Erleichtert das Verständnis und Debugging des gesamten Systems.
 
 ===============================================
