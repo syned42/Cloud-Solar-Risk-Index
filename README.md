@@ -25,7 +25,7 @@ Dieses Projekt verfolgt das Ziel, Verbraucher intelligent zu steuern – und zwa
 Statt nur den momentanen Strahlungswert zu betrachten, bewertet der CSRI die **Dynamik** von UV-Index, Globalstrahlung und Wolkenzug – trianguliert  
 aus mehreren DWD-Stationen im 20–30 km-Radius. So entsteht ein Prozentwert, der sowohl PV-Betreibern als auch Sonnenanbetern hilft, drohende Abschattungen vorauszusehen.
 
-Anhand dieser Kennzahl wird dann entschieden, ob die energiehungrige Verbraucher aktiviert werden sollen, um ausschließlich bei günstigen Solarbedingungen den Haushalt zu unterstützen.  
+Diese Kennzahl kann dann verwendet werden um in Automationen zu entscheiden, ob die energiehungrigen Verbraucher aktiviert werden sollen, um ausschließlich bei günstigen Solarbedingungen den Haushalt zu unterstützen.  
 
 ## Herausforderung
 Die zentrale Herausforderung besteht darin, ein System zu entwickeln, das:
