@@ -1,6 +1,6 @@
-# Info.md – Gedankenstützen zur Solarwahrscheinlichkeits-Berechnung
+# Info.md – Gedankenstützen zur Cloud-Solar-Risk-Index-Berechnung (CSRI = Cloud-Solar-Risk-Index)
 
-Diese Datei dokumentiert den vollständigen konzeptionellen und implementierungstechnischen Hintergrund unseres Projekts „Solarwahrscheinlichkeit“. Sie fasst die Architektur, detaillierte Berechnungsansätze, zugrundeliegende Recherchen sowie Verbesserungsvorschläge automatisch zusammen. Dieses Dokument dient als umfassende Gedächtnisstütze, damit wir jederzeit direkt und nahtlos anknüpfen können.
+Diese Datei dokumentiert den vollständigen konzeptionellen und implementierungstechnischen Hintergrund unseres Projekts „Cloud-Solar-Risk-Index“. Sie fasst die Architektur, detaillierte Berechnungsansätze, zugrundeliegende Recherchen sowie Verbesserungsvorschläge automatisch zusammen. Dieses Dokument dient als umfassende Gedächtnisstütze, damit wir jederzeit direkt und nahtlos anknüpfen können.
 
 ---
 
@@ -8,12 +8,12 @@ Diese Datei dokumentiert den vollständigen konzeptionellen und implementierungs
 
 **Ziel:**
 
-- **Robuste Berechnungslogik zur Ermittlung der WP-Solarwahrscheinlichkeit:**  
-  - **Konzept:** Anhand von Echtzeit-Wetterdaten soll eine Kennzahl (WP-Wert) ermittelt werden, welche aussagt, ob die Wärmepumpe (WP) zu einem bestimmten Zeitpunkt aktiv sein sollte – basierend auf den aktuellen PV-Ertragsbedingungen.  
-  - **Nutzen:** Optimierung des Eigenverbrauchs der PV-Anlage, Reduzierung des Netzstrombezugs und effizienter Betrieb der WP.
+- **Robuste Berechnungslogik zur Ermittlung dsr Cloud-Solar-Risk-Index:**  
+  - **Konzept:** Anhand von Echtzeit-Wetterdaten soll eine Kennzahl (CSRI) ermittelt werden, welche aussagt, ob die elektrischen Verbraucher wie z.B. Wärmepumpe zu einem bestimmten Zeitpunkt aktiv sein sollte – basierend auf den aktuellen PV-Ertragsbedingungen.  
+  - **Nutzen:** Optimierung des Eigenverbrauchs der PV-Anlage, Reduzierung des Netzstrombezugs und effizienter Betrieb der Verbraucher.
 
 - **Optimale WP-Steuerung:**  
-  - **Konzept:** Die Steuerung der WP erfolgt automatisiert, sodass sie nur dann aktiviert wird, wenn aufgrund günstiger Wetterbedingungen und PV-Ertragsprognosen ein hoher Eigenverbrauch möglich ist.  
+  - **Konzept:** Die Steuerung der mittels Auswertungen automatisiert erfolgen, sodass sie nur dann aktiviert wird, wenn aufgrund günstiger Wetterbedingungen und PV-Ertragsprognosen ein hoher Eigenverbrauch möglich ist.  
   - **Nutzen:** Energieeinsparungen und Kostenreduktionen durch passgenaue Nutzung selbst erzeugter Solarenergie.
 
 **Grundprinzipien:**
@@ -31,7 +31,7 @@ Diese Datei dokumentiert den vollständigen konzeptionellen und implementierungs
   - **Recherchen:** Veröffentlichungen und Fallstudien zum Cloud-Tracking und zur PV-Ertragsprognose unterstützen diesen Ansatz, da er den tatsächlichen Einfluss von Wolkenbewegungen realistisch erfasst.
 
 - **Saisonale Differenzierung:**  
-  - Ein über eine Sinusfunktion berechneter saisonaler Korrekturfaktor passt den WP-Wert je nach Jahreszeit an – längere, intensivere Sommertage versus kürzere Wintertage.  
+  - Ein über eine Sinusfunktion berechneter saisonaler Korrekturfaktor passt den CSRI je nach Jahreszeit an – längere, intensivere Sommertage versus kürzere Wintertage.  
   - **Hintergrund:** Gut etablierte Modelle in der Photovoltaikbranche nutzen diese Herangehensweise, um saisonale PV-Leistungsunterschiede abzubilden.
 
 ---
@@ -74,15 +74,15 @@ Diese Datei dokumentiert den vollständigen konzeptionellen und implementierungs
 
 #### D. Entscheidungslogik:
 - **Zusammenführung:**  
-  Die gewichteten WP-Werte der einzelnen Standorte werden zu einem Gesamtdurchschnitt aggregiert.
+  Die gewichteten CSRI der einzelnen Standorte werden zu einem Gesamtdurchschnitt aggregiert.
 - **Schwellwert-basierte Entscheidung:**  
   - **Detail:**  
-    - Werte <40 % → Sehr günstige Bedingungen (WP wird aktiviert: "JA").  
-    - Werte zwischen 40 % und 70 % → Gemischte Bedingungen (WP moderat aktiv: "MODERAT").  
-    - Werte >70 % → Ungünstige Bedingungen (WP bleibt inaktiv: "NEIN").  
+    - Werte <40 % → Sehr günstige Bedingungen (Empfehlung : "JA").  
+    - Werte zwischen 40 % und 70 % → Gemischte Bedingungen (Empfehlung moderat aktiv: "MODERAT").  
+    - Werte >70 % → Ungünstige Bedingungen (Empfehlung : "NEIN").  
   - **Unsicherheitsprüfung:**  
-    - Bei großen Unterschieden der Winddaten (z. B. >30°) wird der WP-Wert als unsicher markiert und angepasst.
-  - **Hintergrund:** Diese Logik basiert auf Erfahrungswerten und Forschungsergebnissen aus PV-basierten WP-Steuerungen.
+    - Bei großen Unterschieden der Winddaten (z. B. >30°) wird die Empfehlung als unsicher markiert und angepasst.
+  - **Hintergrund:** Diese Logik basiert auf Erfahrungswerten und Forschungsergebnissen aus PV-basierten Steuerungen.
 - **Bewertung:**  
   Die Entscheidungslogik ist robust, da sie neben einem festen Schwellenwert-System auch dynamische Unsicherheitsprüfungen integriert; so minimieren wir Fehlaktivierungen.
 
@@ -154,9 +154,9 @@ Diese Datei dokumentiert den vollständigen konzeptionellen und implementierungs
 
 ## 5. Praktische Beispiele & Visualisierungsansätze
 
-- **Beispielrechnung zur WP-Berechnung:**  
-  - *Szenario 1:* Geringe Bewölkung (20 %), optimale Windrichtung (Dot-Produkt nahe 1), hoher saisonaler Faktor (Sommer) → WP-Wert z. B. 35 % → "JA" (WP aktiviert).  
-  - *Szenario 2:* Hohe Bewölkung (80 %), ungünstige Windrichtung oder geringe Windbeteiligung, niedriger saisonaler Faktor (Winter) → WP-Wert z. B. 75 % → "NEIN" (WP inaktiv).
+- **Beispielrechnung zur CSRI-Berechnung:**  
+  - *Szenario 1:* Geringe Bewölkung (20 %), optimale Windrichtung (Dot-Produkt nahe 1), hoher saisonaler Faktor (Sommer) → WP-Wert z. B. 35 % → "JA" (Verbraucher könnte effizient durch PV unterstützt werden).  
+  - *Szenario 2:* Hohe Bewölkung (80 %), ungünstige Windrichtung oder geringe Windbeteiligung, niedriger saisonaler Faktor (Winter) → CSRI z. B. 75 % → "NEIN" (PV wird Verbraucher nicht effizient unterstützen).
   - *Nutzen:* Diese Beispiele helfen, den Einfluss der einzelnen Variablen zu verstehen und dienen als Testfälle für die Validierung des Codes.
 
 - **Visualisierung der Vektoranalyse:**  
@@ -167,7 +167,8 @@ Diese Datei dokumentiert den vollständigen konzeptionellen und implementierungs
 
 ## 6. Zusammenfassung
 
-Dieses Dokument bietet eine umfassende Übersicht über den gesamten konzeptionellen und praktischen Hintergrund unseres Projekts "Solarwahrscheinlichkeit". Folgende Punkte stehen dabei im Fokus:
+Dieses Dokument bietet eine umfassende Übersicht über den gesamten konzeptionellen und praktischen Hintergrund unseres Projekts "Cloud-Solar-Risk-Index". 
+Folgende Punkte stehen dabei im Fokus:
 
 - **Realitätsnahe Integration:**  
   Echtzeit-Wetterdaten von drei regionalen Stationen bilden die Basis unseres Systems.
@@ -176,7 +177,7 @@ Dieses Dokument bietet eine umfassende Übersicht über den gesamten konzeptione
   Validierung von Sensordaten, vektorbasiertes Standortmodell und ein saisonal angepasster Faktor gewährleisten eine verlässliche WP-Wert-Ermittlung.
   
 - **Praxisnahe Entscheidungslogik:**  
-  Eine definierte Schwellenwertlogik und Unsicherheitsprüfungen sorgen für eine autarke und effiziente WP-Steuerung.
+  Eine definierte Schwellenwertlogik und Unsicherheitsprüfungen sorgen für eine autarke und effiziente Automation / Entscheidungshilfe einer Verbrauchersteuerung.
   
 - **Hintergrundwissen & Recherchen:**  
   Das konzeptionelle Fundament basiert auf etablierten wissenschaftlichen Ansätzen, Branchenstandards und offenen Datenquellen (u.a. DWD, Smart-Home-Projekte, PV-Ertragsstudien).
