@@ -66,7 +66,8 @@ Die Daten werden über die DWD-Integration (und lokale Sensoren) abgerufen, was 
 ### Dynamische Standortgewichtung
 Ein wesentlicher Bestandteil der Berechnungslogik ist die dynamische Gewichtung der einzelnen Wetterstationen.  
 Hierbei wird ein **vektorbasierter Ansatz** genutzt:
-- **Berechnung geografischer Vektoren:** Für jeden Standort wird ein Vektor gebildet, der dessen relative Position zum zentralen Einspeisepunkt (z. B. Oberkleen) beschreibt.  
+- **Berechnung geografischer Vektoren:** Für jeden Standort wird ein Vektor gebildet, der dessen relative Position zum zentralen Einspeisepunkt
+  (z. B. Standort der PV-Anlage) beschreibt.  
 - **Windvektor:** Die aktuelle Windrichtung wird ebenfalls als Vektor interpretiert.
 - **Dot-Produkt:** Das Ergebnis des Dot-Produkts zwischen dem Standortvektor und dem Windvektor liefert einen Wert, der angibt, inwieweit der Standort aktuell relevante Daten liefert. Ein Wert nahe 1 zeigt eine ideale Ausrichtung, während negative oder null Werte bedeuten, dass der jeweilige Standort von den aktuellen Windverhältnissen nicht beeinflusst wird.
 
