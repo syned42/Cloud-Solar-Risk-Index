@@ -1,12 +1,12 @@
 ###############################################################################
-# solarbewertung.yaml – Konzept & Berechnung der WP Solarwahrscheinlichkeit
+# solarbewertung.yaml – Konzept & Berechnung des CLOUD-SOLAR-RISK INDEX
 ###############################################################################
 #
 # Konzeptbeschreibung:
 #
-#   Diese Datei ermittelt einen wichtigen Kennwert, die "Solarwahrscheinlichkeit" (in %),
-#   die als Entscheidungsgrundlage dient, ob die Wärmepumpe (WP) – über den ESP in Home 
-#   Assistant – gemäß den aktuellen Wetterbedingungen aktiviert werden soll. Damit sollen 
+#   Diese Datei ermittelt einen wichtigen Kennwert, den "Cloud-Solar-Risk-Index" (in %),
+#   der als Entscheidungsgrundlage dient, ob elektrische Verbraucher wie z.B.Wärmepumpe (WP)
+#   gemäß den aktuellen Wetterbedingungen aktiviert werden sollten. Damit sollen 
 #   Phasen bestens ausgenutzter Photovoltaik-Leistung (BKW, max. 800W Einspeisung) erkannt 
 #   werden, um einen unnötigen Netzbezug zu vermeiden.
 #
@@ -68,14 +68,14 @@
 #      - Mittels einer Sinusfunktion wird ein Faktor ermittelt, der den natürlichen Übergang zwischen 
 #        Winter (niedrigere Solareinstrahlung) und Sommer (höhere Solareinstrahlung) widerspiegelt.
 #
-#   3. SOLARWAHRSCHEINLICHKEIT PRO STANDORT:
+#   3. CLOUD-SOLAR-RISK Index PRO STANDORT:
 #      - Für Giessen, Bad Nauheim und Waldems werden die Sensorwerte (Bewölkung, UV-Index, Sichtweite)
 #        kombiniert, wobei für jeden Parameter zuerst Validierungen erfolgen (z. B. Bereichsprüfung).
 #      - Ein Basisfaktor (Gewichtung) wird auf Basis der Windgeschwindigkeit und einer vordefinierten 
 #        gewünschten Richtung angepasst – z. B. für Giessen, wenn der Wind aus N/NE/NW kommt, wird der volle 
 #        Faktor (1) angesetzt, andernfalls 0,9.
 #
-#   4. FINALE WP SOLARWAHRSCHEINLICHKEIT:
+#   4. FINALER CLOUD-SOLAR-RISK INDEX :
 #      - Die standortbezogenen Werte werden zu einem gewichteten Durchschnitt zusammengeführt.
 #      - Neu: Dynamische Standortgewichtung mittels Vektoransatz:
 #         • Für jeden Standort wird ein Vektor (basierend auf der Differenz der geografischen 
@@ -85,18 +85,18 @@
 #         • Die finalen Standortwerte werden anhand dieser Faktoren gewichtet.
 #         • Der globale saisonale Faktor wird schließlich noch mit eingerechnet.
 #
-#   5. WP ENTSCHEIDUNG:
+#   5. ENTSCHEIDUNG:
 #      - Basierend auf dem finalen WP-Wert wird eine operative Entscheidung abgeleitet:
 #          "JA –" bei sehr günstigen Bedingungen, "MODERAT –" bei bedingt sinnvollen Bedingungen,
 #          "NEIN –" bei ungünstigen Einstellungen.
 #      - Bei unsicheren Winddaten – also wenn die stationsübergreifende Differenz der
 #        numerischen Windrichtungen 30° oder mehr beträgt – wird der finale WP-Wert **um 5 Punkte
-#        erhöht**. Da in diesem System höhere WP-Werte als ungünstiger interpretiert werden, sind
+#        erhöht**. Da in diesem System höhere CSRI als ungünstiger interpretiert werden, sind
 #        unsichere (inkonsistente) Daten somit als ungünstig zu werten. Der Ausdruck "unsicher"
 #        wird in der Entscheidungsbeschreibung zusätzlich vermerkt.
 #
 #
-#   6. WP ENTSCHEIDUNGSBEGRÜNDUNG & WP PARAMETER HINWEIS:
+#   6. ENTSCHEIDUNGSBEGRÜNDUNG & WP PARAMETER HINWEIS:
 #      - Hier werden zusätzliche Informationen ausgegeben, die den Einfluss der einzelnen Parameter 
 #        (Bewölkung, Wind, Sicht) detailliert darstellen.
 #      - **Neu:** Die Reihenfolge der Dominanz wird zusätzlich ermittelt, indem die 
@@ -212,7 +212,7 @@
     {%- endif %}
 
 # 4. GLOBALER SAISONFAKTOR
-- name: "WP Saisonfaktor"
+- name: "CSRI Saisonfaktor"
   unit_of_measurement: ""
   state: >
     {%- set day_of_year = now().timetuple().tm_yday -%}
@@ -227,8 +227,8 @@
 # Hinweis: Validierungen erfolgen auch hier. Für jeden Parameter wird geprüft,
 # ob die Werte im plausiblen Bereich liegen; ansonsten werden Standardwerte gesetzt.
 #
-# 5. SOLARWAHRSCHEINLICHKEIT – GIESSEN (inklusive Datenvalidierung, Sichtweitenfaktor, UV-Index)
-- name: "Solarwahrscheinlichkeit Giessen"
+# 5. CSRI – GIESSEN (inklusive Datenvalidierung, Sichtweitenfaktor, UV-Index)
+- name: "CSRI Giessen"
   unit_of_measurement: "%"
   state: >
     {# Bewölkungsgrad validieren (0-100, Standard: 50) #}
@@ -281,8 +281,8 @@
     {%- endif -%}
     {{ (cloud * weight * sicht_factor * uv_factor) | round(0) }}
 
-# 6. SOLARWAHRSCHEINLICHKEIT – BAD NAUHEIM (inklusive Datenvalidierung)
-- name: "Solarwahrscheinlichkeit Bad Nauheim"
+# 6. CSRI – BAD NAUHEIM (inklusive Datenvalidierung)
+- name: "CSRI Bad Nauheim"
   unit_of_measurement: "%"
   state: >
     {%- set raw_cloud = states('sensor.bad_nauheim_bewolkungsgrad') | float(0) -%}
@@ -331,8 +331,8 @@
     {%- endif -%}
     {{ (cloud * weight * sicht_factor * uv_factor) | round(0) }}
 
-# 7. SOLARWAHRSCHEINLICHKEIT – WALDEMS-REINBORN (inklusive Validierung)
-- name: "Solarwahrscheinlichkeit Waldems"
+# 7. CSRI – WALDEMS-REINBORN (inklusive Validierung)
+- name: "CSRI Waldems"
   unit_of_measurement: "%"
   state: >
     {%- set raw_cloud = states('sensor.waldems_reinborn_bewolkungsgrad') | float(0) -%}
@@ -382,12 +382,12 @@
     {{ (cloud * weight * sicht_factor * uv_factor) | round(0) }}
 
 #
-# --- Teil 3: FINALE WP & WP ENTSCHEIDUNG ---
+# --- Teil 3: FINALE CSRI ENTSCHEIDUNG ---
 #
 
-# 8. FINALE WP SOLARWAHRSCHEINLICHKEIT – Gewichteter Durchschnitt aller 3 Standorte
+# 8. FINALER CSRI – Gewichteter Durchschnitt aller 3 Standorte
 #     unter Verwendung exakter geografischer Lage und aktueller Windrichtung
-- name: "WP Solarwahrscheinlichkeit"
+- name: "CSRI"
   unit_of_measurement: "%"
   state: >
     {# Exakte Koordinaten (Dezimalgrad) des zentralen Einspeisepunktes (Oberkleen) #}
@@ -439,19 +439,19 @@
     
     {%- set total_factor = factor_g + factor_n + factor_w -%}
     {%- if total_factor > 0 -%}
-      {%- set wp_weighted = ((states('sensor.solarwahrscheinlichkeit_giessen') | float(0)) * factor_g +
-                              (states('sensor.solarwahrscheinlichkeit_bad_nauheim') | float(0)) * factor_n +
-                              (states('sensor.solarwahrscheinlichkeit_waldems') | float(0)) * factor_w) / total_factor -%}
+      {%- set wp_weighted = ((states('sensor.CSRI_giessen') | float(0)) * factor_g +
+                              (states('sensor.CSRI_bad_nauheim') | float(0)) * factor_n +
+                              (states('sensor.CSRI_waldems') | float(0)) * factor_w) / total_factor -%}
     {%- else -%}
-      {%- set wp_weighted = ((states('sensor.solarwahrscheinlichkeit_giessen') | float(0)) +
-                              (states('sensor.solarwahrscheinlichkeit_bad_nauheim') | float(0)) +
-                              (states('sensor.solarwahrscheinlichkeit_waldems') | float(0))) / 3 -%}
+      {%- set wp_weighted = ((states('sensor.CSRI_giessen') | float(0)) +
+                              (states('sensor.CSRI_bad_nauheim') | float(0)) +
+                              (states('sensor.CSRI_waldems') | float(0))) / 3 -%}
     {%- endif -%}
     
-    {%- set season = states('sensor.wp_saisonfaktor') | float(0) -%}
+    {%- set season = states('sensor.csri_saisonfaktor') | float(0) -%}
     {{ (wp_weighted * season) | round(0) }}
 
-# 9. WP ENTSCHEIDUNG – Entscheidungstext basierend auf dem finalen WP-Wert und
+# 9. ENTSCHEIDUNG – Entscheidungstext basierend auf dem finalen CSRI und
 #    Konsistenz der Winddaten (bei Differenzen > 30° wird der WP-Wert um 5 Punkte **erhöht**,
 #    um unsichere Daten als ungünstig zu werten)
 - name: "WP Entscheidung"
@@ -459,7 +459,7 @@
     {% if not is_state('sun.sun', 'above_horizon') %}
       "NEIN – Nachtzeit, keine Einspeisung"
     {% else %}
-      {%- set final_prob = states('sensor.wp_solarwahrscheinlichkeit') | float(0) -%}
+      {%- set final_prob = states('sensor.CSRI') | float(0) -%}
       {%- set ws_g = states('sensor.giessen_windgeschwindigkeit') | float(0) -%}
       {%- set ws_n = states('sensor.bad_nauheim_windgeschwindigkeit') | float(0) -%}
       {%- set ws_w = states('sensor.waldems_reinborn_windgeschwindigkeit') | float(0) -%}
@@ -477,7 +477,7 @@
               {%- set ambiguous = true -%}
          {%- endif -%}
       {%- endif -%}
-      {# Bei unsicheren Daten (ambiguous == true) wird der finale WP-Wert um 5 Punkte hinzugefügt #}
+      {# Bei unsicheren Daten (ambiguous == true) wird der finale CSRI um 5 Punkte hinzugefügt #}
       {%- set adjusted = final_prob + (5 if ambiguous else 0) -%}
       {%- if adjusted < 40 -%}
         {%- if ambiguous -%}
@@ -506,7 +506,7 @@
     {% if not is_state('sun.sun', 'above_horizon') %}
       "Nachtzeit – keine Solarstrahlung"
     {% else %}
-      {%- set final_prob = states('sensor.wp_solarwahrscheinlichkeit') | float(0) -%}
+      {%- set final_prob = states('sensor.CSRI') | float(0) -%}
       {%- set wp_decision = states('sensor.wp_entscheidung') | default("Keine Entscheidung") -%}
       "WP: " ~ wp_decision ~ ", SW: " ~ (final_prob|round(0)|string) ~ "%"
     {% endif %}
@@ -517,11 +517,11 @@
     {% if not is_state('sun.sun', 'above_horizon') %}
       "Kein Tageslicht – keine Einspeisung."
     {% else %}
-      {%- set final_prob = states('sensor.wp_solarwahrscheinlichkeit') | float(0) -%}
+      {%- set final_prob = states('sensor.CSRI') | float(0) -%}
       {%- set giessen_cloud = states('sensor.giessen_bewolkungsgrad') | float(0) -%}
       {%- set nauheim_cloud = states('sensor.bad_nauheim_bewolkungsgrad') | float(0) -%}
       {%- set waldems_cloud = states('sensor.waldems_reinborn_bewolkungsgrad') | float(0) -%}
-      {%- set faktor = states('sensor.wp_saisonfaktor') | float(0) -%}
+      {%- set faktor = states('sensor.csri_saisonfaktor') | float(0) -%}
       {%- set giessen_wind = states('sensor.giessen_windgeschwindigkeit') | float(0) -%}
       {%- set giessen_wind_dir = states('sensor.giessen_windrichtung_text') | default("unb") -%}
       {%- set nauheim_wind = states('sensor.bad_nauheim_windgeschwindigkeit') | float(0) -%}
@@ -535,7 +535,7 @@
       {%- set sicht_w = states('sensor.waldems_reinborn_sichtweite') | float(0) -%}
       {%- if sicht_w >= 40 -%}{%- set sf_w = 1.1 -%}{%- elif sicht_w >= 30 -%}{%- set sf_w = 1.05 -%}{%- elif sicht_w >= 20 -%}{%- set sf_w = 1.0 -%}{%- elif sicht_w >= 10 -%}{%- set sf_w = 0.95 -%}{%- else -%}{%- set sf_w = 0.9 -%}{%- endif -%}
       {%- set sf_avg = ((sf_g + sf_n + sf_w) / 3) | round(2) -%}
-      {%- set output = "Solarwahrscheinlichkeit: " ~ final_prob|string ~ "%, Giessen Bewölk-Grad: " ~ giessen_cloud|string ~ 
+      {%- set output = "CSRI: " ~ final_prob|string ~ "%, Giessen Bewölk-Grad: " ~ giessen_cloud|string ~ 
             "%, Bad Nauheim Bewölk-Grad: " ~ nauheim_cloud|string ~ "%, Waldems Bewölk-Grad: " ~ waldems_cloud|string ~ 
             "%, Giessen Wind: " ~ giessen_wind|round(1)|string ~ " m/s (" ~ giessen_wind_dir ~ 
             "), Bad Nauheim Wind: " ~ nauheim_wind|round(1)|string ~ " m/s (" ~ nauheim_wind_dir ~ 
