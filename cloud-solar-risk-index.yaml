@@ -7,7 +7,7 @@
 #   Diese Datei ermittelt einen wichtigen Kennwert, den "Cloud-Solar-Risk-Index" (in %),
 #   der als Entscheidungsgrundlage dient, ob elektrische Verbraucher wie z.B.Wärmepumpe (WP)
 #   gemäß den aktuellen Wetterbedingungen aktiviert werden sollten. Damit sollen 
-#   Phasen bestens ausgenutzter Photovoltaik-Leistung (BKW, max. 800W Einspeisung) erkannt 
+#   Phasen bestens ausgenutzter Photovoltaik-Leistung (z.B. BKW, max. 800W Einspeisung) erkannt 
 #   werden, um einen unnötigen Netzbezug zu vermeiden.
 #
 # Warum:
@@ -28,7 +28,7 @@
 #     herangezogen. Jede Station wird zunächst unabhängig bewertet.
 #   - **Dynamische Windgewichtung:** 
 #       - Für jeden Standort wird ein Vektor definiert, der seine relative Position 
-#         (Richtung und Entfernung) zu deinem zentralen Einspeisepunkt (Oberkleen) beschreibt.
+#         (Richtung und Entfernung) zu deinem zentralen Einspeisepunkt (Standort der PV-Anlage) beschreibt.
 #       - Die aktuelle Windrichtung wird ebenfalls in einen Vektor umgerechnet. 
 #       - Das Dot-Produkt (Kosinus des Winkels zwischen den beiden Vektoren) liefert einen 
 #         Relevanzfaktor, der angibt, ob ein Sensorwert in die Berechnung „reinpasst“. Ist der  
@@ -86,11 +86,11 @@
 #         • Der globale saisonale Faktor wird schließlich noch mit eingerechnet.
 #
 #   5. ENTSCHEIDUNG:
-#      - Basierend auf dem finalen WP-Wert wird eine operative Entscheidung abgeleitet:
+#      - Basierend auf dem finalen CSRI wird eine operative Entscheidung abgeleitet:
 #          "JA –" bei sehr günstigen Bedingungen, "MODERAT –" bei bedingt sinnvollen Bedingungen,
 #          "NEIN –" bei ungünstigen Einstellungen.
 #      - Bei unsicheren Winddaten – also wenn die stationsübergreifende Differenz der
-#        numerischen Windrichtungen 30° oder mehr beträgt – wird der finale WP-Wert **um 5 Punkte
+#        numerischen Windrichtungen 30° oder mehr beträgt – wird der finale CSRI **um 5 Punkte
 #        erhöht**. Da in diesem System höhere CSRI als ungünstiger interpretiert werden, sind
 #        unsichere (inkonsistente) Daten somit als ungünstig zu werten. Der Ausdruck "unsicher"
 #        wird in der Entscheidungsbeschreibung zusätzlich vermerkt.
@@ -122,7 +122,7 @@
 #         Faktor (0,9) – oder gar 0, wenn der Sensor nicht in Windrichtung liegt.
 #       • Dynamische Gewichtung durch den Vektoransatz berücksichtigt, wie stark der jeweilige 
 #         Standort in der aktuellen Wetterlage relevant ist.
-#   - **Saisonaler Faktor:** Passe den finalen WP-Wert an die jeweilige Jahreszeit an (z. B. niedrigere 
+#   - **Saisonaler Faktor:** Passe den finalen CSRI an die jeweilige Jahreszeit an (z. B. niedrigere 
 #     Werte im Winter).
 #
 #   - **Dominanz der Standorte:**  
@@ -390,7 +390,7 @@
 - name: "CSRI"
   unit_of_measurement: "%"
   state: >
-    {# Exakte Koordinaten (Dezimalgrad) des zentralen Einspeisepunktes (Oberkleen) #}
+    {# Exakte Koordinaten (Dezimalgrad) des zentralen Einspeisepunktes (Standort PV-Anlage) #}
     {%- set lat_ob = 50.467 -%}
     {%- set lon_ob = 8.583 -%}
     {# Koordinaten der Standorte #}
@@ -404,7 +404,7 @@
     {# Berechnung des Umrechnungsfaktors für den Längengrad (km/°) #}
     {%- set cos_ob = (lat_ob * pi / 180) | cos -%}
     
-    {# Berechnung der Differenzvektoren (in km) zwischen Oberkleen und den Standorten #}
+    {# Berechnung der Differenzvektoren (in km) zwischen Standort PV und den Standorten #}
     {%- set dx_g = (lon_g - lon_ob) * 111 * cos_ob -%}
     {%- set dy_g = (lat_g - lat_ob) * 111 -%}
     {%- set dist_g = (dx_g**2 + dy_g**2) ** 0.5 -%}
@@ -417,7 +417,7 @@
     {%- set dy_w = (lat_w - lat_ob) * 111 -%}
     {%- set dist_w = (dx_w**2 + dy_w**2) ** 0.5 -%}
     
-    {# Normalisierte Vektoren für jeden Standort (Richtung von Oberkleen) #}
+    {# Normalisierte Vektoren für jeden Standort (Richtung von PV-Anlage) #}
     {%- set vec_g = [dx_g/dist_g, dy_g/dist_g] -%}
     {%- set vec_n = [dx_n/dist_n, dy_n/dist_n] -%}
     {%- set vec_w = [dx_w/dist_w, dy_w/dist_w] -%}
@@ -452,7 +452,7 @@
     {{ (wp_weighted * season) | round(0) }}
 
 # 9. ENTSCHEIDUNG – Entscheidungstext basierend auf dem finalen CSRI und
-#    Konsistenz der Winddaten (bei Differenzen > 30° wird der WP-Wert um 5 Punkte **erhöht**,
+#    Konsistenz der Winddaten (bei Differenzen > 30° wird der CSRI um 5 Punkte **erhöht**,
 #    um unsichere Daten als ungünstig zu werten)
 - name: "WP Entscheidung"
   state: >
@@ -698,8 +698,8 @@
       {{ output ~ " | " ~ ranking }}
     {% endif %}
 
-# 13. WINDRICHTUNG OBERKLEEN – Durchschnittlicher Windrichtungstext aus allen Standorten
-- name: "Windrichtung Oberkleen"
+# 13. WINDRICHTUNG Standort PV-Anlage – Durchschnittlicher Windrichtungstext aus allen Standorten
+- name: "Windrichtung PV-Standort"
   state: >
     {%- set wd_g = states('sensor.giessen_windrichtung') | float(0) -%}
     {%- set wd_n = states('sensor.bad_nauheim_windrichtung') | float(0) -%}
