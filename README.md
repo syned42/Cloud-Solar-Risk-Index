@@ -33,7 +33,7 @@ Die zentrale Herausforderung besteht darin, ein System zu entwickeln, das:
 - **Daten von mehreren Wetterstationen** (Giessen, Bad Nauheim, Waldems-Reinborn) integriert, um lokale Schwankungen auszubalancieren.
 - **Saisonale Unterschiede** berücksichtigt, denn im Winter sind die Sonneneinstrahlungswerte naturgemäß niedriger als im Sommer.
 - **Unplausible oder fehlende Sensordaten** (zum Beispiel ein statischer UV-Index, der nur einmal täglich aktualisiert wird oder fehlende Werte bei Waldems) erkennt und entsprechend behandelt.
-- **Dynamisch** und **robust** genug ist, um im täglichen Betrieb verlässliche Entscheidungen zu ermöglichen, ohne dass kurzfristige Störungen oder Messfehler zu unsachgemäßen WP-Aktivierungen führen.
+- **Dynamisch** und **robust** genug ist, um im täglichen Betrieb verlässliche Entscheidungen zu ermöglichen, ohne dass kurzfristige Störungen oder Messfehler zu unsachgemäßen Aktivierungen von elektrischen Verbrauchern führen.
 
 Aus all diesen Gründen stellt die Entwicklung einer fundierten Berechnungslogik für die Risikoermittlung eine anspruchsvolle, aber praxisrelevante Aufgabe dar.
 
@@ -123,11 +123,16 @@ Diese Methode liefert **praxisnahe und zuverlässige Werte**, die als solide Gru
 ## Installation & Nutzung
 1. **Setup in Home Assistant:**  
    Integriere die YAML-Konfiguration in Dein Home Assistant Setup, idealerweise als eigene `cloud-solar-risk-index.yaml.yaml`.
-2. **Anpassung der Sensoren:**  
+   configuration.yaml
+     ...
+     template:
+       - sensor: !include cloud-solar-risk-index.yaml
+   
+3. **Anpassung der Sensoren:**  
    Stelle sicher, dass alle verwendeten Sensoren (für Bewölkung, Wind, UV, Sicht etc.) korrekt in HA eingebunden und benannt sind.
-3. **Erstellung von Automationen:**  
+4. **Erstellung von Automationen:**  
    Verwende den berechneten CSRI und die entsprechende Entscheidung als Trigger für Automationen, etwa um die Verbraucher zu aktivieren oder zu deaktivieren.
-4. **Monitoring & Debugging:**  
+5. **Monitoring & Debugging:**  
    Überprüfe regelmäßig die Zustände der Sensoren und der berechneten Werte über die Home Assistant Developer Tools, um sicherzustellen, dass die Daten valide und die Berechnungen korrekt sind.
 
 ## Lizenz
@@ -264,7 +269,7 @@ Ein saisonal angepasster Korrekturfaktor, der über eine Sinusfunktion berechnet
 - **Mathematische Herleitung:**  
   Der Tag im Jahr (als Tag der Jahres) wird in einen Winkel umgerechnet, der in die Sinusfunktion eingeht, sodass ein Wert zwischen 0 und 1 entsteht. Dieser Faktor passt den WP-Wert an, sodass im Winter (bei geringerer Sonneneinstrahlung) die WP seltener aktiviert wird als im Sommer.
 
-### 5. Entscheidungslogik der Wärmepumpe
+### 5. Entscheidungslogik Bewertung
 Nach der Berechnung des CSRI erfolgt die Entscheidungsfindung:
 - **Schwellwerte:**  
   Der finale WP-Wert wird mit vordefinierten Schwellen verglichen:
@@ -311,6 +316,10 @@ Nach der Berechnung des CSRI erfolgt die Entscheidungsfindung:
 2. **Integration:**  
    - Speichere die YAML-Datei (z. B. als `cloud-solar-risk-index.yaml.yaml`) im entsprechenden Verzeichnis Deiner Home Assistant Konfiguration.
    - Binde die YAML-Datei in Dein HA-Setup ein (über `configuration.yaml` oder entsprechende Splits).
+     configuration.yaml
+     ...
+     template:
+       - sensor: !include cloud-solar-risk-index.yaml
 
 3. **Automatisierungen:**  
    - Erstelle Automationen, die auf Basis des berechneten CSRI (und der daraus resultierenden Entscheidung) die Verbraucher zu schalten.
