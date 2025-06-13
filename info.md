@@ -12,8 +12,8 @@ Diese Datei dokumentiert den vollständigen konzeptionellen und implementierungs
   - **Konzept:** Anhand von Echtzeit-Wetterdaten soll eine Kennzahl (CSRI) ermittelt werden, welche aussagt, ob die elektrischen Verbraucher wie z.B. Wärmepumpe zu einem bestimmten Zeitpunkt aktiv sein sollte – basierend auf den aktuellen PV-Ertragsbedingungen.  
   - **Nutzen:** Optimierung des Eigenverbrauchs der PV-Anlage, Reduzierung des Netzstrombezugs und effizienter Betrieb der Verbraucher.
 
-- **Optimale WP-Steuerung:**  
-  - **Konzept:** Die Steuerung der mittels Auswertungen automatisiert erfolgen, sodass sie nur dann aktiviert wird, wenn aufgrund günstiger Wetterbedingungen und PV-Ertragsprognosen ein hoher Eigenverbrauch möglich ist.  
+- **Optimale Steuerung:**  
+  - **Konzept:** Die Steuerung elektrischer Verbraucher mittels Auswertung des CSRI kann automatisiert erfolgen, sodass sie nur dann aktiviert wird, wenn aufgrund günstiger Wetterbedingungen und PV-Ertragsprognosen ein hoher Eigenverbrauch möglich ist.  
   - **Nutzen:** Energieeinsparungen und Kostenreduktionen durch passgenaue Nutzung selbst erzeugter Solarenergie.
 
 **Grundprinzipien:**
