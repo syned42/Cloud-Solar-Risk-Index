@@ -1,40 +1,40 @@
-# ─── Stage 1: Debian-Builder ──────────────────────────────
-FROM python:3.9-slim as builder
+# ─── Stage 1: Builder auf ARM64 mit Debian ────────────────
+FROM --platform=linux/arm64 python:3.11-slim as builder
 
+ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8
 
-# Notwendige System-Abhängigkeiten für pygrib
+# Systembibliotheken für pygrib + numpy
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libeccodes-dev \
-    libffi-dev \
+    libjpeg-dev \
+    zlib1g-dev \
+    cython3 \
+    git \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Python-Wheel-Verzeichnis anlegen und pygrib vorbereiten
+# Aktuelle Piptools & Wheel bauen
 RUN pip install --upgrade pip setuptools wheel && \
-    pip wheel --wheel-dir=/wheels \
-      pygrib numpy requests
+    pip wheel --wheel-dir=/wheels pygrib numpy requests
 
-# ─── Stage 2: HA-Add-on ───────────────────────────────────
+# ─── Stage 2: Home Assistant Add-on Runtime ───────────────
 ARG BUILD_FROM
 FROM $BUILD_FROM
 
 ENV LANG C.UTF-8
 
-# Python und pip im HA-Basisimage installieren
+# Python & pip hinzufügen, falls noch nicht vorhanden
 RUN apk add --no-cache python3 py3-pip && \
-    python3 -m ensurepip
+    python3 -m ensurepip && pip3 install --upgrade pip
 
-# Wheels aus dem Builder übernehmen
+# Wheels übernehmen und installieren
 COPY --from=builder /wheels /wheels
-
-# Installation der fertigen Python-Wheels
 RUN pip3 install --no-cache-dir /wheels/*.whl
 
-# Add-on Skripte übernehmen
+# Skripte übernehmen
 COPY run.sh /run.sh
 COPY csri_predict.py /csri_predict.py
 RUN chmod +x /run.sh
 
-# Startkommando
 CMD ["/run.sh"]
