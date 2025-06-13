@@ -1,38 +1,44 @@
-# ─── Stage 1: Builder auf ARM64 mit Debian ────────────────
+# ── STAGE 1: Baue Wheels für pygrib & Co ─────────────────────────────
 FROM --platform=linux/arm64 python:3.11-slim as builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8
 
-# Systembibliotheken für pygrib + numpy
+# Systemabhängigkeiten installieren
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libeccodes-dev \
-    libjpeg-dev \
-    zlib1g-dev \
-    cython3 \
-    git \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    build-essential libeccodes-dev libjpeg-dev zlib1g-dev \
+    cython3 git && \
+    rm -rf /var/lib/apt/lists/*
 
-# Aktuelle Piptools & Wheel bauen
+WORKDIR /build
+
+# Pip-Wheels bauen & Log speichern
 RUN pip install --upgrade pip setuptools wheel && \
-    pip wheel --wheel-dir=/wheels pygrib numpy requests
+    mkdir -p /wheels && \
+    pip wheel --wheel-dir=/wheels pygrib numpy requests > /wheels/build.log 2>&1 || \
+    (echo "[CSRI] Fehler beim Build – siehe /wheels/build.log" && \
+     cat /wheels/build.log && exit 1)
 
-# ─── Stage 2: Home Assistant Add-on Runtime ───────────────
+# Sicherstellen, dass pygrib gebaut wurde
+RUN test -f /wheels/pygrib*.whl || \
+    (echo "[CSRI] pygrib-Wheel fehlt – Build wird abgebrochen!" && exit 1)
+
+# ── STAGE 2: Runtime Container für Home Assistant ─────────────────────
 ARG BUILD_FROM
 FROM $BUILD_FROM
 
 ENV LANG C.UTF-8
 
-# Python & pip hinzufügen, falls noch nicht vorhanden
-RUN apk add --no-cache python3 py3-pip && \
-    python3 -m ensurepip && pip3 install --upgrade pip
+# Falls Python & pip nicht vorhanden sind, installieren
+RUN apk add --no-cache python3 py3-pip || true && \
+    python3 -m ensurepip || true && \
+    pip3 install --upgrade pip || true
 
-# Wheels übernehmen und installieren
+# Übernehme Wheels und installiere
 COPY --from=builder /wheels /wheels
 RUN pip3 install --no-cache-dir /wheels/*.whl
 
-# Skripte übernehmen
+# Dein CSRI-Code & Skript
 COPY run.sh /run.sh
 COPY csri_predict.py /csri_predict.py
 RUN chmod +x /run.sh
