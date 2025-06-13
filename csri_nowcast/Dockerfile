@@ -3,27 +3,24 @@ FROM $BUILD_FROM
 
 ENV LANG C.UTF-8
 
-# Install required packages
-RUN apk add --no-cache \
+# System-Pakte installieren (gcc, ecCodes etc.)
+RUN apk update && apk add --no-cache \
+    python3 \
     py3-pip \
-    py3-numpy \
-    py3-requests \
-    gcc \
-    g++ \
-    py3-setuptools \
-    make \
-    linux-headers \
-    eccodes-dev \
-    py3-pillow \
-    py3-cffi \
-    py3-wheel \
-    py3-gribapi \
+    build-base        \
+    linux-headers     \
+    eccodes-dev       \
+    jpeg-dev          \
+    libffi-dev        \
     git
 
-# Install pygrib
-RUN pip install pygrib
+# Python-Dependencies installieren
+RUN pip3 install --no-cache-dir \
+    pygrib \
+    numpy \
+    requests
 
-# Copy files
+# Add-on-Skripte kopieren
 COPY run.sh /run.sh
 COPY csri_predict.py /csri_predict.py
 RUN chmod +x /run.sh
