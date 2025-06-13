@@ -3,7 +3,7 @@ FROM $BUILD_FROM
 
 ENV LANG C.UTF-8
 
-# Edge-Repos für ecCodes aktivieren und System-Bibliotheken installieren
+# Edge-Repos aktivieren & System-Bibliotheken installieren
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
     echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
     apk update && \
@@ -12,20 +12,19 @@ RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositor
       python3-dev \
       py3-pip \
       build-base \
-      linux-headers \
-      eccodes \
-      eccodes-dev \
-      libffi-dev \
+      grib_api        \
+      grib_api-dev    \
+      libffi-dev      \
       git
 
-# pip updaten und Python-Module installieren
+# pip updaten & Python-Abhängigkeiten installieren
 RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel && \
     pip3 install --no-cache-dir \
       numpy \
       requests \
       pygrib
 
-# Add-on-Skripte kopieren und ausführbar machen
+# Skripte kopieren & ausführbar machen
 COPY run.sh /run.sh
 COPY csri_predict.py /csri_predict.py
 RUN chmod +x /run.sh
