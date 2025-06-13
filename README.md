@@ -81,7 +81,7 @@ Weitere Faktoren, die in die Berechnung einfließen:
 - **Sichtweite:** Wird als Bonusfaktor eingerechnet (z. B. 1.1 bei sehr klaren Bedingungen, 0.9 bei schlechter Sicht).  
 - **Bewölkungsgrad:** Direkter Einfluss auf die Solarleistung, da hohe Bewölkung den Ertrag reduziert.
 
-Die Gewichtung der einzelnen Faktoren erfolgt mittels Multiplikation, sodass ein hoher Einfluss (z. B. geringe Bewölkung und günstige Windrichtung) zu einem niedrigeren, also günstigeren WP-Wert führt.
+Die Gewichtung der einzelnen Faktoren erfolgt mittels Multiplikation, sodass ein hoher Einfluss (z. B. geringe Bewölkung und günstige Windrichtung) zu einem niedrigeren, also günstigeren CSRI führt.
 
 ## Details der Berechnung
 
@@ -114,7 +114,7 @@ Zusätzlich wird eine **Unsicherheitsprüfung** der Winddaten durchgeführt. Wei
 ## Praxisnähe und Realitätsbezug
 Die vorliegende Berechnung basiert auf **realen Wetter- und Einspeisedaten** und ist darauf ausgelegt, sich dynamisch an kurzfristige Wetteränderungen anzupassen.  
 - **Geografische Lage:** Mehrere Standorte aus der Region werden herangezogen, sodass lokale Besonderheiten und Wetterphänomene realistisch abgebildet werden.
-- **Dynamische Gewichtung:** Durch die vektorbasierte Analyse wird sichergestellt, dass nur tatsächlich relevante Daten den WP-Wert beeinflussen.
+- **Dynamische Gewichtung:** Durch die vektorbasierte Analyse wird sichergestellt, dass nur tatsächlich relevante Daten den CSRI beeinflussen.
 - **Saisonaler Faktor:** Mit der Sinusfunktion wird ein realistischer zeitlicher Verlauf geschaffen, der zwischen Sommer und Winter differenziert.
 - **Robuste Validierung:** Ungültige oder fehlende Daten werden erkannt und durch Standardwerte oder neutrale Einflüsse kompensiert. Dadurch wird vermieden, dass Ausreißer oder Messfehler das Gesamtergebnis massiv verfälschen.
   
@@ -147,7 +147,7 @@ Zukünftige Erweiterungen könnten beinhalten:
 
 ---
 
-Diese ausführliche Dokumentation vermittelt einen tiefen Einblick in den Berechnungsprozess und die eingesetzten Methodiken. Sie zeigt auf, wie praxisnahe und realistische Werte erzielt werden können, um die Wärmepumpensteuerung optimal zu unterstützen.
+Diese ausführliche Dokumentation vermittelt einen tiefen Einblick in den Berechnungsprozess und die eingesetzten Methodiken. Sie zeigt auf, wie praxisnahe und realistische Werte erzielt werden können, um z.B. die Wärmepumpensteuerung optimal zu unterstützen.
 
 
 
@@ -262,12 +262,12 @@ Jeder Standort (Giessen, Bad Nauheim, Waldems) wird folgendermassen verarbeitet:
 - **Bestimmung des relevanten Einflusses:**  
   Die aktuellen Windrichtung wird in einen Vektor umgerechnet. Anhand des Dot-Produkts der Standortvektoren mit dem Windvektor wird der Relevanzfaktor (zwischen 0 und 1) bestimmt – er zeigt, wie gut der jeweilige Standort in den aktuellen Windfluss eingebunden ist.
 - **Gewichteter Durchschnitt:**  
-  Die Einzelwerte der einzelnen Standorte werden entsprechend ihres Einflussfaktors zu einem Gesamt-WP-Wert gemittelt. Sollte der Gesamtwert zu unsicher erscheinen (etwa bei starken Differenzen in der Windrichtung), wird eine Korrektur vorgenommen.
+  Die Einzelwerte der einzelnen Standorte werden entsprechend ihres Einflussfaktors zu einem Gesamt-CSRI gemittelt. Sollte der Gesamtwert zu unsicher erscheinen (etwa bei starken Differenzen in der Windrichtung), wird eine Korrektur vorgenommen.
 
 ### 4. Saisonaler Faktor
-Ein saisonal angepasster Korrekturfaktor, der über eine Sinusfunktion berechnet wird, wird zum endgültigen WP-Wert hinzugefügt.  
+Ein saisonal angepasster Korrekturfaktor, der über eine Sinusfunktion berechnet wird, wird zum endgültigen CSRI hinzugefügt.  
 - **Mathematische Herleitung:**  
-  Der Tag im Jahr (als Tag der Jahres) wird in einen Winkel umgerechnet, der in die Sinusfunktion eingeht, sodass ein Wert zwischen 0 und 1 entsteht. Dieser Faktor passt den WP-Wert an, sodass im Winter (bei geringerer Sonneneinstrahlung) die WP seltener aktiviert wird als im Sommer.
+  Der Tag im Jahr (als Tag der Jahres) wird in einen Winkel umgerechnet, der in die Sinusfunktion eingeht, sodass ein Wert zwischen 0 und 1 entsteht. Dieser Faktor passt den CSRI an, sodass im Winter (bei geringerer Sonneneinstrahlung) die elektrischen Verbraucher seltener aktiviert werden als im Sommer.
 
 ### 5. Entscheidungslogik Bewertung
 Nach der Berechnung des CSRI erfolgt die Entscheidungsfindung:
@@ -277,7 +277,7 @@ Nach der Berechnung des CSRI erfolgt die Entscheidungsfindung:
   - **Wert zwischen 40 % und 70 %:** Bedingt empfehlenswerte Bedingungen – WP wird moderat aktiv („MODERAT –“).
   - **Wert > 70 %:** Ungeeignete Bedingungen – WP bleibt inaktiv („NEIN –“).
 - **Unsicherheitskennzeichnung:**  
-  Zusätzlich wird eine Prüfung der Konsistenz der Winddaten durchgeführt; wenn die Windrichtungen der Standorte zu sehr auseinander liegen (z. B. Differenz > 30°), wird der WP-Wert leicht heraufgesetzt (+5) und als „unsicher“ markiert. Dies warnt vor instabilen oder uneinheitlichen Wetterbedingungen.
+  Zusätzlich wird eine Prüfung der Konsistenz der Winddaten durchgeführt; wenn die Windrichtungen der Standorte zu sehr auseinander liegen (z. B. Differenz > 30°), wird der CSRI leicht heraufgesetzt (+5) und als „unsicher“ markiert. Dies warnt vor instabilen oder uneinheitlichen Wetterbedingungen.
 
 ---
 
@@ -295,7 +295,7 @@ Nach der Berechnung des CSRI erfolgt die Entscheidungsfindung:
 - **Vektoranalyse:**  
   Der Einsatz eines vektor-basierten Modells für die Windgewichtung sorgt für eine dynamische Anpassung: Nur tatsächlich relevante Daten werden bei der Entscheidung berücksichtigt.
 - **Saisonale Anpassung:**  
-  Die Sinusfunktion, die den saisonalen Verlauf abbildet, sorgt dafür, dass sich der WP-Wert über das Jahr hinweg realistisch verändert. Dies spiegelt den tatsächlichen Verlauf der Sonnenstunden und PV-Erträge wider.
+  Die Sinusfunktion, die den saisonalen Verlauf abbildet, sorgt dafür, dass sich der CSRI über das Jahr hinweg realistisch verändert. Dies spiegelt den tatsächlichen Verlauf der Sonnenstunden und PV-Erträge wider.
 
 ### Praxisnähe
 - **Automatisierung:**  
@@ -303,7 +303,7 @@ Nach der Berechnung des CSRI erfolgt die Entscheidungsfindung:
 - **Robustheit:**  
   Der mehrstufige Validierungsprozess und die dynamische Gewichtung minimieren die Gefahr von Fehlentscheidungen durch einmalige Ausreißer oder unplausible Sensordaten.
 - **Energieeffizienz:**  
-  Durch den intelligenten Einsatz der WP entsprechend der tatsächlichen Solarbedingungen wird der Netzstrombezug minimiert, was zu einer potenziellen Kostensenkung und einer effizienteren Nutzung der eigenen PV-Anlage führt.
+  Durch den intelligenten Einsatz der elektrischen Verbraucher entsprechend der tatsächlichen Solarbedingungen wird der Netzstrombezug minimiert, was zu einer potenziellen Kostensenkung und einer effizienteren Nutzung der eigenen PV-Anlage führt.
 
 ---
 
