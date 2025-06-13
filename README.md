@@ -122,7 +122,7 @@ Diese Methode liefert **praxisnahe und zuverlässige Werte**, die als solide Gru
 
 ## Installation & Nutzung
 1. **Setup in Home Assistant:**  
-   Integriere die YAML-Konfiguration in Dein Home Assistant Setup, idealerweise als eigene `solarbewertung.yaml`.
+   Integriere die YAML-Konfiguration in Dein Home Assistant Setup, idealerweise als eigene `cloud-solar-risk-index.yaml.yaml`.
 2. **Anpassung der Sensoren:**  
    Stelle sicher, dass alle verwendeten Sensoren (für Bewölkung, Wind, UV, Sicht etc.) korrekt in HA eingebunden und benannt sind.
 3. **Erstellung von Automationen:**  
@@ -146,7 +146,7 @@ Diese ausführliche Dokumentation vermittelt einen tiefen Einblick in den Berech
 
 
 
-# WP Solarbewertung – Dynamische Steuerung der Wärmepumpe basierend auf Wetter- und PV-Daten
+# Cloud-Solar-Risk-Index – Dynamische Steuerung elektrischer Verbraucher wie z.B. Wärmepumpe basierend auf Wetter- und PV-Daten
 
 ## Einleitung
 In Zeiten steigender Energiekosten und wachsender Anforderungen an die Energieeffizienz gewinnt die intelligente Steuerung von Haushaltsgeräten immer mehr an Bedeutung.  
@@ -309,7 +309,7 @@ Nach der Berechnung des CSRI erfolgt die Entscheidungsfindung:
    - Alle benötigten Sensoren (Bewölkungsgrad, Windgeschwindigkeit, Windrichtung, UV-Index, Sichtweite) sind eingebunden und liefern Daten.
 
 2. **Integration:**  
-   - Speichere die YAML-Datei (z. B. als `solarbewertung.yaml`) im entsprechenden Verzeichnis Deiner Home Assistant Konfiguration.
+   - Speichere die YAML-Datei (z. B. als `cloud-solar-risk-index.yaml.yaml`) im entsprechenden Verzeichnis Deiner Home Assistant Konfiguration.
    - Binde die YAML-Datei in Dein HA-Setup ein (über `configuration.yaml` oder entsprechende Splits).
 
 3. **Automatisierungen:**  
