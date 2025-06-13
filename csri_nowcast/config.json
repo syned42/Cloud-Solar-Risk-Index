@@ -3,10 +3,16 @@
   "version": "1.0.0",
   "slug": "csri_nowcast",
   "description": "Erstellt einen Cloud-Solar-Risk-Index Forecast aus ICON-D2-Daten",
-  "arch": ["aarch64", "amd64", "armv7"],
   "startup": "once",
   "boot": "manual",
+  "init": false,
+  "host_network": true,
+  "homeassistant": "2024.0.0",
+  "arch": ["aarch64", "armv7", "amd64"],
   "options": {},
   "schema": {},
-  "host_network": true
+  "privileged": [],
+  "map": ["share:rw"],
+  "url": "https://github.com/dein-github-name/Cloud-Solar-Risk-Index",
+  "image": "local/csri_nowcast"
 }
