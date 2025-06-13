@@ -1,0 +1,7 @@
+{
+  "name": "CSRI Nowcast",
+  "content_in_root": false,
+  "domains": ["csri_nowcast"],
+  "country": "DE",
+  "homeassistant": "2023.0.0"
+}
