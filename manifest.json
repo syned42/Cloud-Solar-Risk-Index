@@ -1,0 +1,14 @@
+{
+  "domain": "csri_nowcast",
+  "name": "CSRI Nowcast",
+  "version": "1.0.0",
+  "documentation": "https://github.com/syned42/Cloud-Solar-Risk-Index",
+  "dependencies": [],
+  "codeowners": ["@syned42"],
+  "requirements": [
+    "numpy",
+    "requests",
+    "pygrib"
+  ],
+  "iot_class": "cloud_polling"
+}
